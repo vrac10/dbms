@@ -1,0 +1,16 @@
+/* src/components/ui/Input.css */
+.input {
+    width: 80%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #d1d5db; /* Gray-300 */
+    border-radius: 0.375rem;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+  }
+  
+  .input:focus {
+    outline: none;
+    border-color: #3b82f6; /* Blue-500 */
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); /* Blue-500 with opacity */
+  }
+  
