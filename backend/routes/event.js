@@ -20,12 +20,13 @@ router.get('/events/:user', async (req, res) => {
 
         if (loggedInUser === 'root' || loggedInUser === 'register') {
             // root or register user: query all events
-            query = "SELECT * FROM Event";
+            query = "SELECT * FROM Event;";
         } else {
             // Other users: query a restricted view
-            query = `SELECT * FROM event_manager_${loggedInUser}_view`; // Use the view specific to the logged-in user
+            query = `SELECT * FROM event_manager_${loggedInUser}_view;`; // Use the view specific to the logged-in user
         }
         const [rows] = await pool.query(query);
+
         return res.status(200).json(rows);
     } catch (err) {
         return res.status(500).json({ error: err});
@@ -33,16 +34,17 @@ router.get('/events/:user', async (req, res) => {
 });
 
 // 2. Edit event name by EventID
-router.put('/events/:id', async (req, res) => {
+router.put('/events/updateEvent/:id', async (req, res) => {
     const { id } = req.params;
-    const { newName } = req.body;
+    const { newName, date } = req.body;
+    console.log(newName+' '+date)
     let pool = getPool();
     try {
         const [result] = await pool.query(
-            "UPDATE Event SET Name = ? WHERE EventID = ?", [newName, id]
+            "UPDATE Event SET Name = ?, Date = ? WHERE EventID = ?", [newName,date, id]
         );
         if (result.affectedRows === 0) {
-            return res.status(404).json({ error: 'Event not found' });
+            return res.status(404).json(result);
         }
         res.status(200).json({ message: 'Event name updated successfully' });
     } catch (err) {
@@ -103,7 +105,7 @@ router.post('/events/:eventId/teams/:teamId/members', async (req, res) => {
 
 // 6. Fetch all participants of a particular event
 router.get('/events/:eventId/participants/:user', async (req, res) => {
-    const { eventId , user} = req.params;
+    const { eventId} = req.params;
     let pool = getPool();
     try {   
 
@@ -115,15 +117,14 @@ router.get('/events/:eventId/participants/:user', async (req, res) => {
 
         if (loggedInUser === 'root') {
             // root or register user: query all events
-            query = "";
+            query =  `SELECT * FROM Participant WHERE EventID = ${eventId}`;
         } else {
             // Other users: query a restricted view
-            query = `SELECT * FROM event_manager_${loggedInUser}_view`;
+            query = `SELECT * FROM participant_manager_${loggedInUser}_view`;
         }
 
-        const [rows] = await pool.query(
-            
-            "SELECT * FROM Participant WHERE EventID = ?", [eventId]
+        const [rows] = await pool.query(    
+          query
         );
         return res.status(200).json(rows);
     } catch (err) {
@@ -154,5 +155,25 @@ router.post('/events/addevent', async (req, res) => {
         res.status(500).json({ error: 'Failed to create event' +  err});
     }
 });
+
+router.post('/events/deleteEvent', async (req, res) => {
+    console.log("Received body:", req.body); // Log request body
+    const { EventID } = req.body;
+  
+    if (!EventID) {
+      return res.status(400).json({ error: 'Event ID is required' });
+    }
+  
+    let pool = getPool();
+    try {
+      const [rows] = await pool.query(`CALL DeleteEvent(?)`, [EventID]);
+      res.status(200).json({ message: 'Event deleted successfully' });
+    } catch (err) {
+      res.status(500).json({ error: 'Failed to delete event: ' + err.message });
+    }
+  });
+  
+
+
 
 export default router;

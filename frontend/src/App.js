@@ -27,7 +27,7 @@ const App = () => {
   const [showEditEventModal, setShowEditEventModal] = useState(false);
   const [editEvent, setEditEvent] = useState(null)
 
-  const handleEditEvent = (event) => {
+  const handleEditEvent = async (event) => {
     setEditEvent(event);
     setShowEditEventModal(true);
   };
@@ -81,15 +81,59 @@ const App = () => {
    
   };
 
+  const handleOnDelete = async (event) => {
+    try {
+      const response = await fetch('http://localhost:8000/event/events/deleteEvent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ EventID: event.EventID }), // Wrap in an object
+        mode: 'cors',
+      });
+  
+      if (response.ok) {
+        alert("Event Deleted Successfully!");
+      } else {
+        const errorData = await response.json();
+        console.error({ error: errorData.error });
+      }
+    } catch (error) {
+      console.error("Request failed", error);
+    }
+  };
+  
   const fetchEvents = async () => {
     const response = await fetch(`http://localhost:8000/event/events/${user}`);
     const final = await response.json();
-    setEvents(final)
+    if(response && response.ok){
+      setEvents(final)
+    }
+    else{
+      console.log(final)
+    }
+    
+  }
+
+  const handleSaveEvent = async (eventData) => {
+
+      const response = await fetch(`http://localhost:8000/event/events/updateEvent/${eventData.EventID}`, {
+        method : "PUT",
+        headers : {
+            "Content-Type": "application/json",
+        },
+        body : JSON.stringify({newName : eventData.name, date : eventData.date})});
+        if (response.ok) {
+          alert("Event Updated Successfully!");
+        } else {
+          const errorData = await response.json();
+          console.log(errorData);
+        }
   }
 
   useEffect(() => {
     fetchEvents();
-  },[user])
+  },[user,events])
   
   const handleCreateEvent = async (eventData) => {
     
@@ -217,14 +261,15 @@ const App = () => {
         <ParticipantsModal
           eventID={selectedEventID}
           onClose={() => setShowParticipantsModal(false)}
+          user= {user}
         />
       )}
       {showEditEventModal && (
         <EditEventModal
           event={editEvent}
           onClose={() => setShowEditEventModal(false)}
-          onSave={() => {console.log('onsave')}}
-          onDelete={() => {console.log('ondelete')}}
+          onSave={handleSaveEvent}
+          onDelete={() => {handleOnDelete(editEvent)}}
         />
       )}
     </div>

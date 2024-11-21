@@ -76,6 +76,16 @@ router.post('/register', async (req, res) => {
         `;
         await connection.query(grantMemberPermissionsQuery);
 
+        const createParticipantViewQuery = `CREATE OR REPLACE VIEW participant_manager_${username}_view AS 
+            SELECT * FROM Participant WHERE EventID = ${event_id};`
+
+        await connection.query(createParticipantViewQuery);
+
+        const grantParticipantPermissionsQuery = `GRANT SELECT, UPDATE, INSERT, DELETE ON participant_manager_${username}_view TO '${username}'@'localhost';`
+
+        await connection.query(grantParticipantPermissionsQuery)
+
+
         return res.status(200).send({ message: "User created successfully" });
 
     } catch (err) {

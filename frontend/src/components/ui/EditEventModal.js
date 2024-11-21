@@ -3,26 +3,27 @@ import React, { useEffect, useState } from 'react';
 import './EditEventModal.css';
 
 const EditEventModal = ({ event, onClose, onSave, onDelete }) => {
-  const [name, setName] = useState(event.name || '');
-  const [date, setDate] = useState(event.date || '');
+  const dateStr = new String(event.Date)
+  const [name, setName] = useState(event.Name || '');
+  const [date, setDate] = useState(dateStr.slice(0,10) || '');
   const [teamMembers, setTeamMembers] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchTeamMembers = async () => {
-      try {
-        const response = await fetch(`http://localhost:8000/event/${event.EventID}/team-members`);
-        const data = await response.json();
-        setTeamMembers(data);
-      } catch (error) {
-        console.error('Error fetching team members:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchTeamMembers = async () => {
+  //     try {
+  //       const response = await fetch(`http://localhost:8000/event/${event.EventID}/team-members`);
+  //       const data = await response.json();
+  //       setTeamMembers(data);
+  //     } catch (error) {
+  //       console.error('Error fetching team members:', error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
-    fetchTeamMembers();
-  }, [event.EventID]);
+    // fetchTeamMembers();
+  // }, [event.EventID]);
 
   const handleTeamMemberChange = (index, field, value) => {
     setTeamMembers((prev) => {
@@ -42,11 +43,12 @@ const EditEventModal = ({ event, onClose, onSave, onDelete }) => {
 
   const handleSave = () => {
     const updatedEvent = {
+      EventID : event.EventID,
       name,
       date,
       teamMembers,
     };
-    onSave(event.EventID, updatedEvent);
+    onSave(updatedEvent);
   };
 
   return (
@@ -75,8 +77,7 @@ const EditEventModal = ({ event, onClose, onSave, onDelete }) => {
             onChange={(e) => setDate(e.target.value)}
           />
         </div>
-
-        {/* Team Members Section */}
+{/* 
         <h3>Team Members</h3>
         {loading ? (
           <p>Loading team members...</p>
@@ -103,11 +104,12 @@ const EditEventModal = ({ event, onClose, onSave, onDelete }) => {
             </div>
           ))
         )}
-        <button onClick={handleAddTeamMember}>Add Team Member</button>
+        <button onClick={handleAddTeamMember}>Add Team Member</button> */}
 
         {/* Delete and Save Buttons */}
         <div className="modal-actions">
-          <button className="delete-button" onClick={() => onDelete(event.EventID)}>
+          <button className="delete-button" onClick={() =>{
+           onDelete(event.EventID)}}>
             Delete Event
           </button>
           <button className="save-button" onClick={handleSave}>

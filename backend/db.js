@@ -14,7 +14,7 @@ export const createPool = (username, password) => {
 
     // Create a new pool with the logged-in user's credentials
     pool = mysql.createPool({
-        host: 'localhost',
+        host: '127.0.0.1',
         user: username,
         password: password,
         database: 'DBMS_PROJECT_MAIN',

@@ -2,14 +2,14 @@
 import React, { useEffect, useState } from 'react';
 import './ParticipantsModal.css'
 
-const ParticipantsModal = ({ eventID, onClose }) => {
+const ParticipantsModal = ({ eventID, onClose, user }) => {
   const [participants, setParticipants] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchParticipants = async () => {
       try {
-        const response = await fetch(`http://localhost:8000/event//events/${eventID}/participants`);
+        const response = await fetch(`http://localhost:8000/event/events/${eventID}/participants/${user}`);
         const data = await response.json();
         console.log(data)
         setParticipants(data);
@@ -19,7 +19,7 @@ const ParticipantsModal = ({ eventID, onClose }) => {
         setLoading(false);
       }
     };
-    
+
     fetchParticipants();
   }, [eventID]);
 

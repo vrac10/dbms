@@ -3,10 +3,9 @@ import { getPool } from "../db.js";
 
 const router = express.Router();
 
-const pool = getPool
-
 // 1. Add a new sponsor
 router.post('/sponsors', async (req, res) => {
+    const pool = getPool()
     const { name, amount, eventId, festId } = req.body;
 
     try {
@@ -22,6 +21,7 @@ router.post('/sponsors', async (req, res) => {
 
 // 2. Fetch all sponsor names
 router.get('/sponsors', async (req, res) => {
+    const pool = getPool()
     try {
         const [rows] = await pool.query(
             "SELECT SponsorID, Name FROM Sponsor"
